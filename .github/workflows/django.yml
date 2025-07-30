@@ -1,24 +1,52 @@
-name: Django CI
+name: Django CI/CD and Deploy to PythonAnywhere
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main   # or your main branch
 
 jobs:
-  build:
+  build-test-deploy:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: 3.11
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
-    - name: Run Tests
-      run: |
-        python manage.py migrate
-        python manage.py test
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'  # match your Python version
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run migrations
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}  # if you use env var for DB config
+        run: python manage.py migrate
+
+      - name: Run tests
+        run: python manage.py test
+
+      - name: Deploy to PythonAnywhere
+        if: success()  # Only run if previous steps succeed
+        env:
+          PA_USERNAME: ${{ secrets.PA_USERNAME }}
+          PA_API_TOKEN: ${{ secrets.PA_API_TOKEN }}
+        run: |
+          echo "Deploying to PythonAnywhere..."
+
+          # Create a zip of your repo
+          zip -r deploy.zip . -x '*.git*' '*.github*' 'deploy.zip'
+
+          # Upload your zipped code to PythonAnywhere using their API
+          curl -X POST https://www.pythonanywhere.com/api/v0/user/$PA_USERNAME/files/path/home/$PA_USERNAME/myproject/deploy.zip \
+            -H "Authorization: Token $PA_API_TOKEN" \
+            -F "content=@deploy.zip"
+
+          # SSH or API command to unzip and reload your web app
+          curl -X POST https://www.pythonanywhere.com/api/v0/user/$PA_USERNAME/webapps/myusername.pythonanywhere.com/reload/ \
+            -H "Authorization: Token $PA_API_TOKEN"
