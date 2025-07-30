@@ -19,15 +19,6 @@ load_dotenv()
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
-
-# # SECURITY WARNING: keep the secret key used in production secret!
-# SECRET_KEY = 'django-insecure-s22%0doeth(wi@6&$7g43j89%6+e1*x_ie(+=7&xbd@imq$rqf'
-
-# # SECURITY WARNING: don't run with debug turned on in production!
-# DEBUG = True
-
 DEBUG = os.getenv("DEBUG", "False") == "True"
 SECRET_KEY = os.getenv("SECRET_KEY", "fallback-key")
 
@@ -75,17 +66,6 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'myprojects.wsgi.application'
-
-
-# Database
-# https://docs.djangoproject.com/en/5.2/ref/settings/#databases
-
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': BASE_DIR / 'db.sqlite3',
-#     }
-# }
 
 
 if os.getenv("DB_ENGINE") == "mysql":
