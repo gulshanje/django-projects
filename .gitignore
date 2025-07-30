@@ -1,0 +1,7 @@
+__pycache__
+dpvenv
+deploy.yml
+.env
+db.sqlite3
+/staticfiles/
+media/
