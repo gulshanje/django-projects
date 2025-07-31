@@ -5,3 +5,4 @@ deploy.yml
 db.sqlite3
 /staticfiles/
 media/
+old-setups
